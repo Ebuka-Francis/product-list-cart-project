@@ -7,10 +7,10 @@ const CartConfrimation: React.FC<CartProduct> = () => {
   const carts = useBearStore((state) => state.carts);
   const clearCart = useBearStore((state) => state.clearCart);
 
-  // const handleStartNewOrder = () => {
-  //   clearCart();
-  //  closeModal();
-  // }
+  const handleStartNewOrder = () => {
+    clearCart();
+    window.location.reload()
+  }
   const total = carts.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0
@@ -55,7 +55,7 @@ const CartConfrimation: React.FC<CartProduct> = () => {
       </div>
         </div>
 
-      <button onClick={clearCart}  className="bg-[#c73a0f] font-sans hover:bg-[#260f08] text-white w-full h-10 mt-5 rounded-full">
+      <button onClick={handleStartNewOrder}  className="bg-[#c73a0f] font-sans hover:bg-[#260f08] text-white w-full h-10 mt-5 rounded-full">
             Start New Order
           </button>
     </div>
