@@ -1,6 +1,3 @@
-
-
-
 "use client";
 import React, { useState } from "react";
 import useBearStore from "@/store/stateManagement";
@@ -22,7 +19,7 @@ function Carts() {
 
   return (
     <>
-    <div className="max-w-2xl w-full">
+    <div className="max-w-[400px] w-full">
       {cart && cart.length < 1 ? (
         <div className="w-full h-[250px] bg-white p-3 rounded-xl">
           <h2 className="text-[#c73a0f] font-sans font-bold text-2xl">
@@ -43,6 +40,7 @@ function Carts() {
               key={idx}
               name={item.name}
               quantity={item.quantity}
+              place={item.place}
               price={item.price}
               category={item.category || "Uncategorized"}
               id={item.id}
@@ -69,7 +67,7 @@ function Carts() {
     </div>
     <Modal isOpen={isModalOpen} onClose={closeModal} >
     <CartConfrimation 
-    id={""} name={""} price={0} quantity={0} category={""} />
+    id={""} name={""} price={0} quantity={0} category={""}  place={""}/>
       
     </Modal>
     </>
