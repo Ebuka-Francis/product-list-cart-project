@@ -27,7 +27,7 @@ function Carts() {
             Your Cart({cart.length})
           </h2>
           <div className="flex flex-col items-center">
-            <Image src="/illustration-empty-cart.svg" alt="empty-cart-image" width={150} height={150} />
+            <Image src="/illustration-empty-cart.svg" alt="empty-cart-image" width={150} height={150}  priority />
             <p>Your added items will appear here</p>
           </div>
         </div>

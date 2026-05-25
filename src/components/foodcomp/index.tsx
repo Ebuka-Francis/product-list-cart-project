@@ -42,7 +42,7 @@ const FoodContainer: React.FC<CartProduct> = ({
       {/* ── Image block ── */}
       <div className="relative">
         <div className={completed ? "border-2 border-[#c73a0f] rounded-lg overflow-hidden" : "rounded-lg overflow-hidden"}>
-          <Image src={imageUrl ?? "/placeholder.png"}  alt={name} className="card-image" width={300} height={300} />
+        <Image src={imageUrl ?? "/placeholder.png"} alt={name} className="card-image" width={300} height={300} priority />
         </div>
 
         {/* Add to cart / counter button */}
@@ -67,7 +67,7 @@ const FoodContainer: React.FC<CartProduct> = ({
             onClick={handleChange}
             className="h-12 absolute left-1/2 -translate-x-1/2 bottom-[-20px] w-[160px] cursor-pointer bg-white text-black border hover:border-[#c73a0f] border-gray-300 rounded-full flex gap-2 items-center justify-center shadow-md z-10"
           >
-            <Image src="/icon-add-to-cart.svg" alt="Add to Cart" width={20} height={20} />
+           <Image src="icon-add-to-cart.svg" alt="Add to Cart" width={20} height={20} style={{ width: "auto", height: "auto" }} />
             <p className="font-sans text-[15px] text-black font-semibold">Add to cart</p>
           </div>
         )}
