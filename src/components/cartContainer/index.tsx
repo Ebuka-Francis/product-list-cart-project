@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import React, { useState } from "react";
 import useBearStore from "@/store/stateManagement";
 import CartItems from "./cartItems";
@@ -26,7 +27,7 @@ function Carts() {
             Your Cart({cart.length})
           </h2>
           <div className="flex flex-col items-center">
-            <img src="/illustration-empty-cart.svg" alt="empty-cart-image" />
+            <Image src="/illustration-empty-cart.svg" alt="empty-cart-image" width={150} height={150} />
             <p>Your added items will appear here</p>
           </div>
         </div>
@@ -53,7 +54,7 @@ function Carts() {
             <h3 className="text-lg font-bold">{`$${total.toFixed(2)}`}</h3>
           </div>
           <div className="flex justify-center gap-1 p-3 bg-[#f4edeb] rounded-lg w-full mx-auto">
-            <img src="/icon-carbon-neutral.svg" alt="carbon image" />
+            <Image src="/icon-carbon-neutral.svg" alt="carbon image" width={24} height={24} />
             <p className="font-sans text-[14px]">
               This is a <span className="font-semibold">Carbon-neutral</span>{" "}
               delivery

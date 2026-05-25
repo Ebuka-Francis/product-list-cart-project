@@ -5,7 +5,7 @@ import { CartProduct }from '../types/types';
 
 
 interface BearState {
-  decrementItemQuantity: any;
+  decrementItemQuantity: (id: string) => void;
   count: number
   // toggle: boolean
   carts: CartProduct[]

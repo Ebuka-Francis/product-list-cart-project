@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
+import Image from "next/image";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -149,10 +150,12 @@ export default function AddMealModal({ isOpen, onClose, onMealAdded }: AddMealMo
           <div>
             {imagePreview ? (
               <div className="relative w-full h-48 rounded-2xl overflow-hidden group">
-                <img
+                <Image
                   src={imagePreview}
                   alt="Meal preview"
                   className="w-full h-full object-cover"
+                  fill
+                  style={{ objectFit: 'cover' }}
                 />
                 {!loading && (
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">

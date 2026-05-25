@@ -1,5 +1,6 @@
 
 
+import Image from "next/image";
 import React from "react";
 import { formatDollars } from "../../foodcomp";
 import { CartProduct } from "@/types/types";
@@ -29,7 +30,7 @@ const CartItems: React.FC<CartProduct> = ({name,quantity, price, id}) => {
         </div>
       </div>
       <button onClick={() => handleDelte(id)} className="border border-[#333] rounded-lg opacity-25 hover:opacity-90 p-[3px]">
-        <img className="hover:text-black" src="/icon-remove-item.svg" alt="Remove" />
+        <Image className="hover:text-black" src="/icon-remove-item.svg" alt="Remove" width={24} height={24} />
       </button>
     </div>
     </>

@@ -2,6 +2,7 @@ import React from "react";
 import { CartProduct } from "@/types/types";
 import { formatDollars } from "../foodcomp";
 import useBearStore from "@/store/stateManagement";
+import Image from "next/image";
 
 const CartConfrimation: React.FC<CartProduct> = () => {
   const carts = useBearStore((state) => state.carts);
@@ -17,7 +18,14 @@ const CartConfrimation: React.FC<CartProduct> = () => {
   );
   return (
     <div className="p-[1rem] flex flex-col gap-3 ">
-      <img className="w-[50px]" src="/icon-order-confirmed.svg" alt="" />
+
+      <Image
+  src="/icon-order-confirmed.svg"
+  alt="Order Confirmed"
+  width={300}
+  height={200}
+className="w-[50px]"
+/>
         <div>
       <h2 className="text-[30px] font-bold ">Order Confirmed</h2>
       <p className='text-[14px] font-sans p-[0px] opacity-60' >we hope you enjoy your food</p>
@@ -28,7 +36,7 @@ const CartConfrimation: React.FC<CartProduct> = () => {
         <div key={item.id} className="flex justify-between items-start mt-4 border-b border-[#3e3e41]">
           <div className="flex justify-between items-center w-[100%] p-3">
             <div className="flex gap-3 items-center">
-            <img className="w-[50px] rounded-md " src={item.imageUrl} alt="" />
+            <Image className="w-[50px] rounded-md " src={item.imageUrl ?? "/placeholder.png"}  alt="" width={50} height={50} />
             <div className="flex flex-col ">
             <h4 className="font-sans text-[15px] text-black font-semibold">
               {item.name}

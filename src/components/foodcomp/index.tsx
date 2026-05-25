@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 export const formatDollars = (value: number) => {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -16,7 +18,7 @@ const FoodContainer: React.FC<CartProduct> = ({
   name,
   imageUrl,
   price,
-  quantity,
+  // quantity,
   product,
   category,
   completed,
@@ -40,7 +42,7 @@ const FoodContainer: React.FC<CartProduct> = ({
       {/* ── Image block ── */}
       <div className="relative">
         <div className={completed ? "border-2 border-[#c73a0f] rounded-lg overflow-hidden" : "rounded-lg overflow-hidden"}>
-          <img src={imageUrl} alt={name} className="card-image" />
+          <Image src={imageUrl ?? "/placeholder.png"}  alt={name} className="card-image" width={300} height={300} />
         </div>
 
         {/* Add to cart / counter button */}
@@ -50,14 +52,14 @@ const FoodContainer: React.FC<CartProduct> = ({
               onClick={() => decreament(id)}
               className="border border-white rounded-full w-[18px] h-[18px] flex items-center justify-center"
             >
-              <img src="/icon-decrement-quantity.svg" alt="Decrease" />
+              <Image src="/icon-decrement-quantity.svg" alt="Decrease" width={18} height={18} />
             </button>
             <p className="font-semibold tabular-nums">{cartItem?.quantity || 0}</p>
             <button
               onClick={handleChange}
               className="border border-white rounded-full w-[18px] h-[18px] flex items-center justify-center"
             >
-              <img src="/icon-increment-quantity.svg" alt="Increase" />
+              <Image src="/icon-increment-quantity.svg" alt="Increase" width={18} height={18} />
             </button>
           </div>
         ) : (
@@ -65,7 +67,7 @@ const FoodContainer: React.FC<CartProduct> = ({
             onClick={handleChange}
             className="h-12 absolute left-1/2 -translate-x-1/2 bottom-[-20px] w-[160px] cursor-pointer bg-white text-black border hover:border-[#c73a0f] border-gray-300 rounded-full flex gap-2 items-center justify-center shadow-md z-10"
           >
-            <img src="icon-add-to-cart.svg" alt="Add to Cart" />
+            <Image src="/icon-add-to-cart.svg" alt="Add to Cart" width={20} height={20} />
             <p className="font-sans text-[15px] text-black font-semibold">Add to cart</p>
           </div>
         )}
