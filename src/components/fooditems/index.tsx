@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import FoodContainer from "../foodcomp";
-//@ts-ignore
-import "./foodItems.css";
 import { CartProduct } from "@/types/types";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
