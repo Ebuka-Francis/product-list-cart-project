@@ -20,14 +20,21 @@ export default function FoodItemsComp({
 
   useEffect(() => {
     const q = query(collection(db, "meals"), orderBy("createdAt", "desc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data: CartProduct[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...(doc.data() as Omit<CartProduct, "id">),
-      }));
-      setMeals(data);
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const data: CartProduct[] = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...(doc.data() as Omit<CartProduct, "id">),
+        }));
+        setMeals(data);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Firestore meals listener failed:", err);
+        setLoading(false);
+      }
+    );
     return () => unsubscribe();
   }, []);
 

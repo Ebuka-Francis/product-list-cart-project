@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Playfair_Display } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const geistSans = localFont({
@@ -37,6 +38,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} antialiased`}
       >
+        {/* TEMP: mobile debug console — remove once debugging is done */}
+        <Script
+          src="https://cdn.jsdelivr.net/npm/eruda"
+          strategy="beforeInteractive"
+        />
+        <Script id="eruda-init" strategy="afterInteractive">
+          {`eruda.init();`}
+        </Script>
+
         {children}
       </body>
     </html>
