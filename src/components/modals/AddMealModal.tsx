@@ -14,6 +14,10 @@ interface AddMealModalProps {
 const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!;
 const CLOUDINARY_UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!;
 
+// Keep this in sync with the filter pills used on the meals list page.
+// "All" is intentionally excluded here since it's a filter-only option, not a real category.
+const MEAL_CATEGORIES = ["Desserts", "Main Course", "Drinks", "Snacks"] as const;
+
 async function uploadToCloudinary(file: File): Promise<string> {
   const formData = new FormData();
   formData.append("file", file);
@@ -34,6 +38,7 @@ export default function AddMealModal({ isOpen, onClose, onMealAdded }: AddMealMo
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [place, setPlace] = useState("");
+  const [category, setCategory] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -57,8 +62,8 @@ export default function AddMealModal({ isOpen, onClose, onMealAdded }: AddMealMo
     e.preventDefault();
     setError("");
 
-    if (!name.trim() || !price || !place.trim() || !imageFile) {
-      setError("Please fill in all fields and add a photo.");
+    if (!name.trim() || !price || !place.trim() || !category || !imageFile) {
+      setError("Please fill in all fields, pick a category, and add a photo.");
       return;
     }
 
@@ -74,6 +79,7 @@ export default function AddMealModal({ isOpen, onClose, onMealAdded }: AddMealMo
         name: name.trim(),
         price: parseFloat(price),
         place: place.trim(),
+        category,
         imageUrl,
         createdAt: serverTimestamp(),
       });
@@ -82,6 +88,7 @@ export default function AddMealModal({ isOpen, onClose, onMealAdded }: AddMealMo
       setName("");
       setPrice("");
       setPlace("");
+      setCategory("");
       setImageFile(null);
       setImagePreview(null);
       setUploadProgress("idle");
@@ -102,6 +109,7 @@ export default function AddMealModal({ isOpen, onClose, onMealAdded }: AddMealMo
     setName("");
     setPrice("");
     setPlace("");
+    setCategory("");
     setImageFile(null);
     setImagePreview(null);
     setError("");
@@ -118,7 +126,7 @@ export default function AddMealModal({ isOpen, onClose, onMealAdded }: AddMealMo
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center "
       onClick={handleClose}
     >
       {/* Backdrop */}
@@ -126,7 +134,7 @@ export default function AddMealModal({ isOpen, onClose, onMealAdded }: AddMealMo
 
       {/* Modal */}
       <div
-        className="relative w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden"
+        className="relative w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-y-auto h-[90vh]"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: "slideUp 0.3s ease-out" }}
       >
@@ -214,6 +222,27 @@ export default function AddMealModal({ isOpen, onClose, onMealAdded }: AddMealMo
               placeholder="e.g. Jollof Rice & Chicken"
               className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#c73a0f] focus:ring-2 focus:ring-[#c73a0f]/10 transition text-sm"
             />
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Category</label>
+            <div className="flex flex-wrap gap-2">
+              {MEAL_CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setCategory(cat)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
+                    category === cat
+                      ? "bg-[#c73a0f] border-[#c73a0f] text-white"
+                      : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Price */}

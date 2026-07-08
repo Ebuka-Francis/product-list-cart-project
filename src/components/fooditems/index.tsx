@@ -6,7 +6,15 @@ import { CartProduct } from "@/types/types";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-export default function FoodItemsComp() {
+interface FoodItemsCompProps {
+  activeCategory?: string;
+  search?: string;
+}
+
+export default function FoodItemsComp({
+  activeCategory = "All",
+  search = "",
+}: FoodItemsCompProps) {
   const [meals, setMeals] = useState<CartProduct[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,16 +31,35 @@ export default function FoodItemsComp() {
     return () => unsubscribe();
   }, []);
 
+  // Filter by category and search
+  const filtered = meals.filter((meal) => {
+    const matchesCategory =
+      activeCategory === "All" ||
+      meal.category?.toLowerCase() === activeCategory.toLowerCase();
+    const matchesSearch =
+      !search ||
+      meal.name?.toLowerCase().includes(search.toLowerCase()) ||
+      meal.place?.toLowerCase().includes(search.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
   if (loading) {
     return (
-      <div className="grid grid-cols-3 gap-6 mt-4">
+      <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
         {[...Array(6)].map((_, i) => (
-          <div key={i} className="rounded-xl border border-gray-200 overflow-hidden animate-pulse">
-            <div className="bg-gray-200 h-[200px] w-full" />
-            <div className="p-3 space-y-2">
-              <div className="h-4 bg-gray-200 rounded w-3/4" />
-              <div className="h-3 bg-gray-200 rounded w-1/2" />
-              <div className="h-3 bg-gray-200 rounded w-2/3" />
+          <div
+            key={i}
+            className="rounded-2xl overflow-hidden animate-pulse"
+            style={{ background: "white", boxShadow: "0 2px 8px rgba(28,17,9,0.06)" }}
+          >
+            <div className="h-[150px] w-full" style={{ background: "#EDE0D0" }} />
+            <div className="p-4 space-y-2">
+              <div className="h-3 rounded-full w-1/3" style={{ background: "#EDE0D0" }} />
+              <div className="h-4 rounded-full w-3/4" style={{ background: "#EDE0D0" }} />
+              <div className="flex justify-between mt-3">
+                <div className="h-4 rounded-full w-1/4" style={{ background: "#EDE0D0" }} />
+                <div className="h-4 rounded-full w-1/4" style={{ background: "#EDE0D0" }} />
+              </div>
             </div>
           </div>
         ))}
@@ -40,24 +67,53 @@ export default function FoodItemsComp() {
     );
   }
 
+  if (filtered.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <span className="text-5xl mb-4">🍽</span>
+        <p className="font-semibold text-base" style={{ color: "#1C1109" }}>
+          No meals found
+        </p>
+        <p className="text-sm mt-1" style={{ color: "#A07050" }}>
+          {search ? `No results for "${search}"` : "Nothing in this category yet"}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
-      {/* Override card-image to be uniform height & cover across all cards */}
       <style>{`
         .food-card-wrapper .card-image {
           width: 100%;
-          height: 200px;
+          height: 160px;
           object-fit: cover;
           display: block;
-          border-radius: 7px;
         }
       `}</style>
-
-     <div className="grid [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))] gap-6 mt-4">
-        {meals.map((item, idx) => (
+      <div
+        className="grid gap-5"
+        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}
+      >
+        {filtered.map((item, idx) => (
           <div
             key={idx}
-            className="food-card-wrapper border border-gray-200 rounded-xl overflow-visible shadow-sm hover:shadow-md transition-shadow duration-200 bg-white"
+            className="food-card-wrapper rounded-2xl overflow-visible transition-all duration-200"
+            style={{
+              background: "white",
+              boxShadow: "0 2px 8px rgba(28,17,9,0.06)",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLDivElement).style.boxShadow =
+                "0 8px 28px rgba(28,17,9,0.12)";
+              (e.currentTarget as HTMLDivElement).style.transform =
+                "translateY(-3px)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLDivElement).style.boxShadow =
+                "0 2px 8px rgba(28,17,9,0.06)";
+              (e.currentTarget as HTMLDivElement).style.transform = "none";
+            }}
           >
             <FoodContainer
               id={item.id}

@@ -3,12 +3,12 @@ import Hero from "../components/hero";
 
 export default function Home() {
   return (
-    <div className=" flex flex-col lg:flex-row lg:justify-center px-[10px] gap-[40px] my-10
-     max-w-8xl mx-auto 
-     bg-[#f4edeb]">
+    <div
+      className="min-h-screen flex flex-col lg:flex-row lg:items-start lg:justify-center gap-6 lg:gap-8 lg:p-8 p-0"
+      style={{ background: "#FBF6EF" }}
+    >
       <Hero />
       <Carts />
-      
     </div>
   );
 }
