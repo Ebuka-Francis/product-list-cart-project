@@ -99,7 +99,7 @@ export default function FoodItemsComp({
         }
       `}</style>
       <div
-        className="grid gap-5"
+        className="grid gap-5 p-[10px]"
         style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}
       >
         {filtered.map((item, idx) => (
