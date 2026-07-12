@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Playfair_Display } from "next/font/google";
 import "./globals.css";
+import Footer from "@/components/footer/Footer";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -36,8 +37,10 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} antialiased`}
+        suppressHydrationWarning
       >
         {children}
+        <Footer />
       </body>
     </html>
   );

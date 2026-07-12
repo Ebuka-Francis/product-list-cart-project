@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from "firebase/app";
 import { initializeFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -19,5 +20,7 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0
 export const db = initializeFirestore(app, {
   experimentalAutoDetectLongPolling: true,
 });
+
+export const auth = getAuth(app);
 
 export default app;
