@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { X, Minus, Plus, Trash2 } from "lucide-react";
-import useBearStore from "@/store/stateManagement";// adjust to your actual store path
+import useBearStore from "@/store/stateManagement";
+import { authApi } from "@/lib/api";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -16,9 +18,48 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const removeItemFromCart = useBearStore((state) => state.removeItemFromCart);
   const clearCart = useBearStore((state) => state.clearCart);
 
-  // NOTE: adjust `item.name`, `item.price`, `item.image` below to match
-  // whatever fields your Product/CartProduct type actually uses.
+  const [checkingOut, setCheckingOut] = useState(false);
+  const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
   const total = carts.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const handleCheckout = async () => {
+    if (carts.length === 0) return;
+    setError("");
+    setSuccessMsg("");
+    setCheckingOut(true);
+
+    try {
+      // Construct the order payload matching your backend order schema
+      const orderPayload = {
+        items: carts.map((item) => ({
+          mealId: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          imageUrl: item.imageUrl,
+          place: item.place,
+        })),
+        totalAmount: total,
+      };
+
+      // Send order request to your backend endpoint (adjust route if needed, e.g. "/orders")
+      await authApi.post("/orders", orderPayload);
+
+      setSuccessMsg("Order placed successfully!");
+      clearCart();
+      setTimeout(() => {
+        setSuccessMsg("");
+        onClose();
+      }, 1500);
+    } catch (err) {
+      console.error("Checkout failed:", err);
+      setError("Failed to place order. Please try again.");
+    } finally {
+      setCheckingOut(false);
+    }
+  };
 
   return (
     <>
@@ -106,11 +147,20 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               <span>Total</span>
               <span>₦{total.toLocaleString()}</span>
             </div>
-            <button className="w-full rounded-xl bg-[#c8632a] py-3 text-sm font-semibold text-white transition hover:bg-[#b3551f]">
-              Checkout
+
+            {error && <p className="mb-2 text-xs text-red-500">{error}</p>}
+            {successMsg && <p className="mb-2 text-xs text-green-600 font-semibold">{successMsg}</p>}
+
+            <button
+              onClick={handleCheckout}
+              disabled={checkingOut}
+              className="w-full rounded-xl bg-[#c8632a] py-3 text-sm font-semibold text-white transition hover:bg-[#b3551f] disabled:opacity-60"
+            >
+              {checkingOut ? "Placing Order..." : "Checkout"}
             </button>
             <button
               onClick={clearCart}
+              disabled={checkingOut}
               className="mt-2 w-full text-center text-xs text-[#a68a72] hover:underline"
             >
               Clear cart

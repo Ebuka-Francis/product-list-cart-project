@@ -1,9 +1,8 @@
 "use client";
 
 import { Home, Gift, CookingPot, Heart, LogOut } from "lucide-react";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthStore } from "@/store/authStore";
 
 const highlights = [
   { icon: Home, label: "For Home Cooks" },
@@ -14,12 +13,13 @@ const highlights = [
 
 export default function Footer() {
   const { user } = useAuth();
+const logout = useAuthStore((s) => s.logout);
 
-  const handleLogout = async () => {
-    const confirmed = window.confirm("Are you sure you want to log out?");
-    if (!confirmed) return;
-    await signOut(auth);
-  };
+const handleLogout = async () => {
+  const confirmed = window.confirm("Are you sure you want to log out?");
+  if (!confirmed) return;
+  await logout();
+};
 
   return (
     <footer className="bg-[#2b1810] px-6 py-4 fixed bottom-0 left-0 w-full z-50">

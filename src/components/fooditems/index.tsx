@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; // or your api client path
 import FoodContainer from "../foodcomp";
 import { CartProduct } from "@/types/types";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { catalogApi } from "@/lib/api"; // Assuming you use this for backend requests
 
 interface FoodItemsCompProps {
   activeCategory?: string;
@@ -19,23 +18,31 @@ export default function FoodItemsComp({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(collection(db, "meals"), orderBy("createdAt", "desc"));
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const data: CartProduct[] = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...(doc.data() as Omit<CartProduct, "id">),
-        }));
-        setMeals(data);
-        setLoading(false);
-      },
-      (err) => {
-        console.error("Firestore meals listener failed:", err);
+    const fetchMeals = async () => {
+      try {
+        setLoading(true);
+        // Adjust the endpoint path to match your meals backend route (e.g. "/meals" or "/api/meals")
+        const response = await catalogApi.get("");
+        
+        // Ensure data maps properly to your CartProduct interface 
+        // (MongoDB typically uses `_id` instead of `id`, so we map it if needed)
+        const rawMeals = response.data.meals || response.data;
+        const formattedMeals: CartProduct[] = rawMeals.map(
+          (meal: Partial<CartProduct> & { _id?: string }) => ({
+            ...meal,
+            id: meal._id || meal.id || "",
+          })
+        ) as CartProduct[];
+
+        setMeals(formattedMeals);
+      } catch (err) {
+        console.error("Failed to fetch meals from backend:", err);
+      } finally {
         setLoading(false);
       }
-    );
-    return () => unsubscribe();
+    };
+
+    fetchMeals();
   }, []);
 
   // Filter by category and search
@@ -104,7 +111,7 @@ export default function FoodItemsComp({
       >
         {filtered.map((item, idx) => (
           <div
-            key={idx}
+            key={item.id || idx}
             className="food-card-wrapper rounded-2xl overflow-visible transition-all duration-200"
             style={{
               background: "white",
@@ -125,7 +132,7 @@ export default function FoodItemsComp({
             <FoodContainer
               id={item.id}
               quantity={item.quantity}
-              imageUrl={item.imageUrl}
+              image={item.image}
               name={item.name}
               description={item.description}
               price={item.price}

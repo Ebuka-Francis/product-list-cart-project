@@ -3,13 +3,15 @@
 import { useState } from "react";
 import { FirebaseError } from "firebase/app";
 import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
-  updateProfile,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+
+import { authApi } from "@/lib/api";
+import { AxiosError } from "axios";
+import { useAuthStore } from "@/store/authStore";
+
 
 type Mode = "login" | "signup";
 
@@ -20,6 +22,7 @@ interface AuthModalProps {
 }
 
 export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
+  const setUser = useAuthStore((s) => s.setUser);
   const [mode, setMode] = useState<Mode>("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -65,24 +68,27 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     }
   };
 
-  const handleEmailAuth = async (e: React.FormEvent) => {
+ const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+
     try {
-      if (mode === "signup") {
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
-        if (name.trim()) {
-          await updateProfile(cred.user, { displayName: name.trim() });
-        }
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-      }
+      const endpoint = mode === "signup" ? "/register" : "/login";
+      const body = mode === "signup" ? { name, email, password } : { email, password };
+
+      const { data } = await authApi.post(endpoint, body);
+
+      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("refreshToken", data.refreshToken);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setUser(data.user);
+
       onSuccess?.();
       handleClose();
-    } catch (err: unknown) {
-      const errorCode = err instanceof FirebaseError ? err.code : "";
-      setError(friendlyError(errorCode));
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message: string }>;
+      setError(axiosErr.response?.data?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

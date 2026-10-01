@@ -15,7 +15,8 @@ export default function ProfilePage() {
   const { role: savedRole, loading: roleLoading } = useUserRole();
   const { appUser, vendor, loading: dataLoading, reload } = useProfileData();
 
-  const [onboardingRole, setOnboardingRole] = useState<"customer" | "vendor" | null>(null);
+  // Updated to "cook" to match the backend UserRole type ("customer" | "cook" | "admin")
+  const [onboardingRole, setOnboardingRole] = useState<"customer" | "cook" | null>(null);
   const [mode, setMode] = useState<"display" | "edit">("display");
 
   if (!user) {
@@ -30,8 +31,7 @@ export default function ProfilePage() {
     return <ProfileSkeleton />;
   }
 
-  // Brand-new user — no role saved yet. The toggle only ever shows here,
-  // and it's gone for good the moment they pick one.
+  // Brand-new user — no role saved yet.
   if (!savedRole) {
     if (!onboardingRole) {
       return (
@@ -42,6 +42,7 @@ export default function ProfilePage() {
           >
             How will you use Chef at Home?
           </h1>
+          {/* Note: Ensure your RoleToggle component emits "cook" instead of "vendor" when selected */}
           <RoleToggle onChange={setOnboardingRole} />
         </div>
       );
@@ -59,7 +60,7 @@ export default function ProfilePage() {
     );
   }
 
-  // Returning user — role is fixed, no toggle anywhere in this flow.
+  // Returning user — role is fixed.
   if (mode === "edit") {
     return (
       <div className="bg-[#faf3ea]">
@@ -77,7 +78,8 @@ export default function ProfilePage() {
     );
   }
 
-  return savedRole === "vendor" ? (
+  // Check against "cook" instead of "vendor"
+  return savedRole === "cook" ? (
     <VendorProfileView vendor={vendor ?? {}} onEdit={() => setMode("edit")} />
   ) : (
     <CustomerProfileView appUser={appUser ?? {}} onEdit={() => setMode("edit")} />

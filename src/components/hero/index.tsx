@@ -62,7 +62,7 @@ function Hero() {
 
    {!loading && !roleLoading && (
   user ? (
-    role === "vendor" ? (
+    role === "cook" ? (
       <button
         onClick={() => setIsModalOpen(true)}
         className="shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200"

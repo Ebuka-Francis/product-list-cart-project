@@ -2,8 +2,10 @@
 
 import React, { useState, useRef } from "react";
 import Image from "next/image";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+// import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+// import { db } from "@/lib/firebase";
+import { catalogApi } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AddMealModalProps {
   isOpen: boolean;
@@ -46,6 +48,7 @@ export default function AddMealModal({ isOpen, onClose, onMealAdded }: AddMealMo
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const { user } = useAuth();
 
   if (!isOpen) return null;
 
@@ -57,52 +60,53 @@ export default function AddMealModal({ isOpen, onClose, onMealAdded }: AddMealMo
     reader.onloadend = () => setImagePreview(reader.result as string);
     reader.readAsDataURL(file);
   };
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  if (!name.trim() || !price || !place.trim() || !category || !imageFile) {
+    setError("Please fill in all fields, pick a category, and add a photo.");
+    return;
+  }
 
-    if (!name.trim() || !price || !place.trim() || !category || !imageFile) {
-      setError("Please fill in all fields, pick a category, and add a photo.");
-      return;
-    }
+  if (!user) {
+    setError("You must be logged in to post a meal.");
+    return;
+  }
 
-    setLoading(true);
-    try {
-      // Step 1: Upload image to Cloudinary
-      setUploadProgress("uploading");
-      const imageUrl = await uploadToCloudinary(imageFile);
+  setLoading(true);
+  try {
+    setUploadProgress("uploading");
+    const imageUrl = await uploadToCloudinary(imageFile);
 
-      // Step 2: Save meal data to Firestore
-      setUploadProgress("saving");
-      await addDoc(collection(db, "meals"), {
-        name: name.trim(),
-        price: parseFloat(price),
-        place: place.trim(),
-        category,
-        imageUrl,
-        createdAt: serverTimestamp(),
-      });
+    setUploadProgress("saving");
+    await catalogApi.post("/", {
+      name: name.trim(),
+      price: parseFloat(price),
+      place: place.trim(),
+      category,
+      image: imageUrl,
+      cookId: user.id,
+    });
 
-      // Reset
-      setName("");
-      setPrice("");
-      setPlace("");
-      setCategory("");
-      setImageFile(null);
-      setImagePreview(null);
-      setUploadProgress("idle");
+    setName("");
+    setPrice("");
+    setPlace("");
+    setCategory("");
+    setImageFile(null);
+    setImagePreview(null);
+    setUploadProgress("idle");
 
-      onMealAdded();
-      onClose();
-    } catch (err) {
-      console.error(err);
-      setError("Something went wrong. Please try again.");
-      setUploadProgress("idle");
-    } finally {
-      setLoading(false);
-    }
-  };
+    onMealAdded();
+    onClose();
+  } catch (err) {
+    console.error(err);
+    setError("Something went wrong. Please try again.");
+    setUploadProgress("idle");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleClose = () => {
     if (loading) return;

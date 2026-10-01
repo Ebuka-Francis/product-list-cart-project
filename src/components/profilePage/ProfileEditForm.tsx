@@ -2,9 +2,8 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import { doc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { useAuth } from "@/hooks/useAuth";
+import { authApi } from "@/lib/api";
 import { AppUser, Gender, SubscriptionPlan, Vendor } from "@/types/types";
 import SubscriptionPlans from "../subscription";
 import { Camera } from "lucide-react";
@@ -29,7 +28,7 @@ async function uploadToCloudinary(file: File): Promise<string> {
 }
 
 interface ProfileEditFormProps {
-  role: "customer" | "vendor";
+  role: "customer" | "cook" | "admin";
   appUser: Partial<AppUser> | null;
   vendor: Partial<Vendor> | null;
   onSaved: () => void;
@@ -90,7 +89,7 @@ export default function ProfileEditForm({
       setError("Please fill in your name and phone number.");
       return;
     }
-    if (role === "vendor" && !businessName.trim()) {
+    if (role === "cook" && !businessName.trim()) {
       setError("Please add your business name.");
       return;
     }
@@ -101,55 +100,27 @@ export default function ProfileEditForm({
       if (imageFile) {
         imageUrl = await uploadToCloudinary(imageFile);
       }
+const payload = {
+        name: fullName.trim(),
+        email: user.email,
+        phoneNumber: phoneNumber.trim(),
+        role,
+        ...(gender ? { gender } : {}),
+        ...(dateOfBirth ? { dateOfBirth } : {}),
+        ...(imageUrl ? { profileImage: imageUrl, logo: imageUrl } : {}),
+        ...(role === "cook"
+          ? {
+              businessName: businessName.trim(),
+              ownerName: ownerName.trim() || fullName.trim(),
+              description: description.trim(),
+            }
+          : {}),
+        // Pass a string since your backend Mongoose model expects a String for "address"
+        address: street.trim(),
+      };
 
-      const now = new Date();
-
-      await setDoc(
-        doc(db, "users", user.uid),
-        {
-          fullName: fullName.trim(),
-          email: user.email,
-          phoneNumber: phoneNumber.trim(),
-          role,
-          ...(gender ? { gender } : {}),
-          ...(dateOfBirth ? { dateOfBirth } : {}),
-          ...(imageUrl ? { profileImage: imageUrl } : {}),
-          address: [
-            {
-              id: "primary",
-              label: label.trim() || "Home",
-              street: street.trim(),
-              city: city.trim(),
-              country: country.trim(),
-            },
-          ],
-          updatedAt: now,
-        },
-        { merge: true }
-      );
-
-      if (role === "vendor") {
-        await setDoc(
-          doc(db, "vendors", user.uid),
-          {
-            businessName: businessName.trim(),
-            ownerName: ownerName.trim() || fullName.trim(),
-            email: user.email,
-            phoneNumber: phoneNumber.trim(),
-            ...(imageUrl ? { logo: imageUrl } : {}),
-            description: description.trim(),
-            address: {
-              id: "primary",
-              label: label.trim() || "Home",
-              street: street.trim(),
-              city: city.trim(),
-              country: country.trim(),
-            },
-            updatedAt: now,
-          },
-          { merge: true }
-        );
-      }
+      // Send update to your backend via authApi using user.id
+      await authApi.put("/me", payload);
 
       onSaved();
     } catch (err) {
@@ -246,7 +217,7 @@ export default function ProfileEditForm({
 
         <div className="rounded-3xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-[#a68a72]">
-            {role === "vendor" ? "Business address" : "Delivery address"}
+            {role === "cook" ? "Business address" : "Delivery address"}
           </h2>
           <div className="space-y-3">
             <input
@@ -282,7 +253,7 @@ export default function ProfileEditForm({
           </div>
         </div>
 
-        {role === "vendor" && (
+        {role === "cook" && (
           <div className="rounded-3xl bg-white p-6 shadow-sm">
             <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-[#a68a72]">
               Business details
@@ -326,10 +297,10 @@ export default function ProfileEditForm({
         </button>
       </form>
 
-      {role === "vendor" && user && (
+      {role === "cook" && user && (
         <div className="mt-10 border-t border-[#e4d3c0] pt-8">
           <SubscriptionPlans
-            vendorId={user.uid}
+            vendorId={user.id}
             currentPlan={currentPlan}
             onSubscribed={(plan) => setCurrentPlan(plan)}
           />

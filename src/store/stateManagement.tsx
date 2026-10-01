@@ -94,67 +94,7 @@ const useBearStore = create<BearState>()((set,get) => ({
 export default useBearStore;
 
 
-// 'use client';
 
-// import { create } from 'zustand';
-// import { Product, CartProduct } from '../types/types';
-
-// // Define the state interface
-// interface CartState {
-//   carts: CartProduct[]; // Array of items in the cart
-//   count: number; // Optional: Total item count in the cart
-//   addItemToCart: (item: Product) => void; // Function to add a product to the cart
-//   removeItemFromCart: (id: string) => void; // Function to remove a product from the cart
-//   clearCart: () => void; // Function to clear the cart
-// }
-
-// // Create the Zustand store
-// const useCartStore = create<CartState>()((set, get) => ({
-//   carts: [],
-//   count: 0,
-
-//   // Add item to cart
-//   addItemToCart: (item) => {
-//     const carts = get().carts;
-
-//     // Check if the item already exists in the cart
-//     const itemExists = carts.find((cartItem) => cartItem.id === item.id);
-
-//     if (itemExists) {
-//       // Update the quantity if the item exists
-//       set({
-//         carts: carts.map((cartItem) =>
-//           cartItem.id === item.id
-//             ? { ...cartItem, quantity: cartItem.quantity + 1 }
-//             : cartItem
-//         ),
-//       });
-//     } else {
-//       // Add the new item to the cart
-//       set({
-//         carts: [...carts, { ...item, quantity: 1 }], // Default quantity is 1
-//       });
-//     }
-//     console.log("Updated carts:", ...carts);
-//     console.log('new items>>>>>>>>', itemExists);
-
-//   },
-
-//   // Remove item from cart
-//   removeItemFromCart: (id) => {
-//     const carts = get().carts;
-
-//     // Filter out the item with the given ID
-//     set({
-//       carts: carts.filter((cartItem) => cartItem.id !== id),
-//     });
-//   },
-
-
-// }));
-
-
-// export default useCartStore;
 
 
 

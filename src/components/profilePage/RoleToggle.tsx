@@ -3,7 +3,7 @@
 import { Store, ShoppingBag } from "lucide-react";
 
 interface RoleToggleProps {
-  onChange: (role: "customer" | "vendor") => void;
+  onChange: (role: "customer" | "cook") => void;
 }
 
 export default function RoleToggle({ onChange }: RoleToggleProps) {
@@ -23,7 +23,7 @@ export default function RoleToggle({ onChange }: RoleToggleProps) {
       </button>
 
       <button
-        onClick={() => onChange("vendor")}
+        onClick={() => onChange("cook")}
         className="flex w-full items-center gap-4 rounded-2xl border border-[#e4d3c0] bg-white px-4 py-4 text-left transition hover:border-[#c8632a]/40"
       >
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#faf3ea] text-[#c8632a]">

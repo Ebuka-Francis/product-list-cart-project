@@ -1,14 +1,6 @@
 "use client";
 
 import Image from "next/image";
-
-export const formatDollars = (value: number) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(value);
-};
-
 import React from "react";
 import useBearStore from "@/store/stateManagement";
 import { CartProduct } from "@/types/types";
@@ -20,7 +12,7 @@ const DARK = "#1C1109";
 const FoodContainer: React.FC<CartProduct> = ({
   id,
   name,
-  imageUrl,
+  image,
   price,
   product,
   category,
@@ -29,53 +21,69 @@ const FoodContainer: React.FC<CartProduct> = ({
 }) => {
   const { carts, setToggle } = useBearStore();
   const addToCart = useBearStore((state) => state.addItemToCart);
-  const decreament = useBearStore((state) => state.decrementItemQuantity);
+  const decrement = useBearStore((state) => state.decrementItemQuantity);
 
   const cartItem = carts.find((item) => item.id === id);
+  const isInCart = Boolean(cartItem && cartItem.quantity > 0);
 
-  const handleAdd = () => {
-    setToggle(id);
-    if (product) addToCart(product);
+  const handleAdd = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!completed) {
+      setToggle(id);
+    }
+    if (product) {
+      addToCart(product);
+    } else {
+      // Fallback if product object isn't spread directly
+      addToCart({ id, name, image, price, category, place, completed: true, quantity: 1 });
+    }
+  };
+
+  const handleDecrement = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    decrement(id);
+    if (cartItem && cartItem.quantity <= 1) {
+      setToggle(id); // Toggle back to "Add to cart" view if quantity hits 0
+    }
   };
 
   return (
-    <div className="flex flex-col rounded-2xl overflow-hidden">
+    <div className="flex flex-col rounded-2xl overflow-visible relative pb-5">
       {/* ── Image block ── */}
-      <div className="relative overflow-hidden" style={{ borderRadius: "14px 14px 0 0" }}>
+      <div className="relative" style={{ borderRadius: "14px 14px 0 0" }}>
         {/* Quantity badge (top-right) */}
-        {completed && cartItem && cartItem.quantity > 0 && (
+        {isInCart && (
           <div
-            className="absolute top-2 right-2 z-10 text-white text-xs font-bold px-2 py-0.5 rounded-full"
+            className="absolute top-2 right-2 z-20 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md"
             style={{ background: ACCENT }}
           >
-            ×{cartItem.quantity}
+            ×{cartItem?.quantity ?? 0}
           </div>
         )}
 
-        {/* Image with terracotta ring when in cart */}
+        {/* Image wrapper */}
         <div
           className="overflow-hidden"
           style={{
-            outline: completed ? `2.5px solid ${ACCENT}` : "none",
+            outline: isInCart ? `2.5px solid ${ACCENT}` : "none",
             outlineOffset: "-2px",
             borderRadius: "14px 14px 0 0",
           }}
         >
           <Image
-            src={imageUrl ?? "/placeholder.png"}
+            src={image ?? "/placeholder.png"}
             alt={name}
-            className="card-image"
+            className="card-image w-full h-[160px] object-cover block"
             width={300}
             height={300}
             priority
-            style={{ borderRadius: 0 }}
           />
         </div>
 
-        {/* ── Add to cart / counter pill (overlapping bottom) ── */}
-        {completed ? (
+        {/* ── Add to cart / counter pill (overlapping bottom cleanly with z-20) ── */}
+        {isInCart ? (
           <div
-            className="absolute left-1/2 -translate-x-1/2 bottom-[-18px] flex items-center justify-evenly gap-2 z-10"
+            className="absolute left-1/2 -translate-x-1/2 bottom-[-18px] flex items-center justify-evenly gap-2 z-20"
             style={{
               width: "148px",
               height: "44px",
@@ -86,9 +94,9 @@ const FoodContainer: React.FC<CartProduct> = ({
             }}
           >
             <button
-              onClick={() => decreament(id)}
-              className="flex items-center justify-center rounded-full border border-white"
-              style={{ width: "22px", height: "22px" }}
+              onClick={handleDecrement}
+              className="flex items-center justify-center rounded-full border border-white transition hover:scale-105"
+              style={{ width: "26px", height: "26px", background: "transparent" }}
               aria-label="Decrease"
             >
               <Image
@@ -103,8 +111,8 @@ const FoodContainer: React.FC<CartProduct> = ({
             </span>
             <button
               onClick={handleAdd}
-              className="flex items-center justify-center rounded-full border border-white"
-              style={{ width: "22px", height: "22px" }}
+              className="flex items-center justify-center rounded-full border border-white transition hover:scale-105"
+              style={{ width: "26px", height: "26px", background: "transparent" }}
               aria-label="Increase"
             >
               <Image
@@ -118,7 +126,7 @@ const FoodContainer: React.FC<CartProduct> = ({
         ) : (
           <button
             onClick={handleAdd}
-            className="absolute left-1/2 -translate-x-1/2 bottom-[-18px] flex items-center justify-center gap-2 z-10 font-semibold text-sm transition-all duration-200 group"
+            className="absolute left-1/2 -translate-x-1/2 bottom-[-18px] flex items-center justify-center gap-2 z-20 font-semibold text-sm transition-all duration-200"
             style={{
               width: "148px",
               height: "44px",
@@ -126,7 +134,7 @@ const FoodContainer: React.FC<CartProduct> = ({
               borderRadius: "100px",
               border: `1px solid #EDE0D0`,
               color: DARK,
-              boxShadow: "0 2px 10px rgba(28,17,9,0.1)",
+              boxShadow: "0 4px 12px rgba(28,17,9,0.12)",
             }}
             onMouseEnter={(e) => {
               const btn = e.currentTarget;
@@ -144,19 +152,17 @@ const FoodContainer: React.FC<CartProduct> = ({
             <Image
               src="/icon-add-to-cart.svg"
               alt="Add to Cart"
-              width={18}
-              height={18}
-              style={{ width: "auto", height: "auto" }}
+              width={16}
+              height={16}
             />
             Add to cart
           </button>
         )}
       </div>
 
-      {/* ── Text block ── */}
+      {/* ── Text block (extra padding-top ensures the overlapping button doesn't cover text) ── */}
       <div
-        className="flex flex-col gap-1 px-4 pb-4"
-        style={{ paddingTop: "30px" }}
+        className="flex flex-col gap-1 px-4 pt-7 pb-2"
       >
         {/* Category badge */}
         <span

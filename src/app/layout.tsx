@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/footer/Footer";
+import AuthInitializer from "@/components/AuthInitializer";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -39,6 +40,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} antialiased`}
         suppressHydrationWarning
       >
+        <AuthInitializer />
         {children}
         <Footer />
       </body>
