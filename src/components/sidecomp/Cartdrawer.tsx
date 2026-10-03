@@ -38,7 +38,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           name: item.name,
           price: item.price,
           quantity: item.quantity,
-          imageUrl: item.imageUrl,
+          imageUrl: item.image ?? "/placeholder.png",
           place: item.place,
         })),
         totalAmount: total,
@@ -98,8 +98,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               {carts.map((item) => (
                 <li key={item.id} className="flex items-center gap-3">
                   <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white">
-                    {item.imageUrl ? (
-                      <Image src={item.imageUrl} alt={item.name} fill className="object-cover" />
+                    {item.image ? (
+                      <Image src={item.image} alt={item.name} fill className="object-cover" />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-[#f5f2ee] text-xs text-[#a68a72]">
                         No image
