@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { X, Store, ShoppingBag, Check } from "lucide-react";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { useAuth } from "@/hooks/useAuth";
+import { authApi } from "@/lib/api";
+import { useAuthStore } from "@/store/authStore";
 
-type Role = "vendor" | "customer";
+type Role = "cook" | "customer";
 
 interface ProfileDrawerProps {
   isOpen: boolean;
@@ -14,38 +13,20 @@ interface ProfileDrawerProps {
 }
 
 export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
-  const { user } = useAuth();
-  const [role, setRole] = useState<Role | null>(null);
-  const [loading, setLoading] = useState(true);
+  const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => {
-    if (!isOpen || !user) return;
-
-    const fetchRole = async () => {
-      setLoading(true);
-      const snap = await getDoc(doc(db, "users", user.uid));
-      if (snap.exists() && snap.data().role) {
-        setRole(snap.data().role as Role);
-      }
-      setLoading(false);
-    };
-
-    fetchRole();
-  }, [isOpen, user]);
+  const role = user?.role as Role | undefined;
 
   const handleSelectRole = async (selected: Role) => {
     if (!user) return;
-    setRole(selected);
     setSaving(true);
     setSaved(false);
     try {
-      await setDoc(
-        doc(db, "users", user.uid),
-        { role: selected, email: user.email },
-        { merge: true }
-      );
+      const { data } = await authApi.put("/role", { role: selected });
+      setUser(data.user);
       setSaved(true);
     } finally {
       setSaving(false);
@@ -54,7 +35,6 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
 
   return (
     <>
-      {/* Overlay */}
       <div
         className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 ${
           isOpen ? "opacity-100" : "pointer-events-none opacity-0"
@@ -62,7 +42,6 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
         onClick={onClose}
       />
 
-      {/* Drawer — slides from the left */}
       <div
         className={`fixed left-0 top-0 z-50 flex h-full w-full max-w-sm flex-col bg-[#faf3ea] shadow-2xl transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
@@ -98,7 +77,7 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
               <div className="space-y-3">
                 <button
                   onClick={() => handleSelectRole("customer")}
-                  disabled={loading || saving}
+                  disabled={saving}
                   className={`flex w-full items-center gap-4 rounded-2xl border px-4 py-4 text-left transition ${
                     role === "customer"
                       ? "border-[#c8632a] bg-[#c8632a]/10"
@@ -116,10 +95,10 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
                 </button>
 
                 <button
-                  onClick={() => handleSelectRole("vendor")}
-                  disabled={loading || saving}
+                  onClick={() => handleSelectRole("cook")}
+                  disabled={saving}
                   className={`flex w-full items-center gap-4 rounded-2xl border px-4 py-4 text-left transition ${
-                    role === "vendor"
+                    role === "cook"
                       ? "border-[#c8632a] bg-[#c8632a]/10"
                       : "border-[#e4d3c0] bg-white hover:border-[#c8632a]/40"
                   }`}
@@ -131,7 +110,7 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
                     <p className="text-sm font-semibold text-[#3a2418]">Vendor</p>
                     <p className="text-xs text-[#a68a72]">List and add meals for sale</p>
                   </div>
-                  {role === "vendor" && <Check size={18} className="text-[#c8632a]" />}
+                  {role === "cook" && <Check size={18} className="text-[#c8632a]" />}
                 </button>
               </div>
 
