@@ -1,6 +1,6 @@
 import React from "react";
 import { CartProduct } from "@/types/types";
-import { formatDollars } from "../foodcomp";
+import { formatDollars } from "../../utility";
 import useBearStore from "@/store/stateManagement";
 import Image from "next/image";
 
@@ -36,7 +36,7 @@ className="w-[50px]"
         <div key={item.id} className="flex justify-between items-start mt-4 border-b border-[#3e3e41]">
           <div className="flex justify-between items-center w-[100%] p-3">
             <div className="flex gap-3 items-center">
-            <Image className="w-[50px] rounded-md " src={item.imageUrl ?? "/placeholder.png"}  alt="" width={50} height={50} />
+            <Image className="w-[50px] rounded-md " src={item.image ?? "/placeholder.png"}  alt="" width={50} height={50} />
             <div className="flex flex-col ">
             <h4 className="font-sans text-[15px] text-black font-semibold">
               {item.name}

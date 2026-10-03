@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import React from "react";
-import { formatDollars } from "../../foodcomp";
+import { formatDollars } from "../../../utility";
 import { CartProduct } from "@/types/types";
 import useBearStore from "@/store/stateManagement";
 
